@@ -1,49 +1,36 @@
 import express from 'express'
 import { fetchProductItems, createProductItem, deleteProductItemById } from './products.service.js'
+import { authMiddleware, adminMiddleware } from '../middleware/auth.middleware.js'
 
 const router = express.Router()
 
-// Получение всех товаров
-router.get('/', async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
   try {
     const items = await fetchProductItems()
     res.json(items)
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch products items' })
+    res.status(500).json({ error: 'Failed to fetch product items' })
   }
 })
 
-// Добавление нового товара
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const data = req.body
-
-    // Простая валидация
-    if (!data.title || !data.price || !data.quantity) {
-      return res.status(400).json({ error: 'Title, price and quantity are required' })
-    }
-
-    const newProducts = await createProductItem(data)
-    res.status(201).json(newProducts)
+    const newItem = await createProductItem(req.body)
+    res.status(201).json(newItem)
   } catch (err) {
-    res.status(500).json({ error: 'Failed to create products item' })
+    res.status(500).json({ error: 'Failed to create product item' })
   }
 })
 
-// Удаление по ID
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const { id } = req.params
-    const deleted = await deleteProductItemById(id)
-
+    const deleted = await deleteProductItemById(req.params.id)
     if (!deleted) {
-      return res.status(404).json({ error: 'Products item not found' })
+      return res.status(404).json({ error: 'Product not found' })
     }
-
-    res.json({ message: 'Products item deleted successfully' })
+    res.json({ message: 'Product deleted' })
   } catch (err) {
-    console.error('DELETE error:', err)
-    res.status(500).json({ error: 'Failed to delete products item' })
+    res.status(500).json({ error: 'Failed to delete product item' })
   }
 })
 
