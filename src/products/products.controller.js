@@ -18,6 +18,11 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
     const newItem = await createProductItem(req.body)
     res.status(201).json(newItem)
   } catch (err) {
+    if (err.name === 'ValidationError') {
+      const errors = Object.values(err.errors).map(e => e.message)
+      return res.status(400).json({ errors })
+    }
+
     res.status(500).json({ error: 'Failed to create product item' })
   }
 })
