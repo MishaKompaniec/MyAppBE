@@ -47,7 +47,8 @@ router.post('/:id/image', authMiddleware, adminMiddleware, upload.single('image'
     const product = await ProductItem.findOne({ id: req.params.id })
     if (!product) return res.status(404).json({ error: 'Product not found' })
 
-    product.image = `/uploads/${req.file.filename}`
+    product.image = req.file.location
+
     await product.save()
 
     res.json({ message: 'Image uploaded', imagePath: product.image })

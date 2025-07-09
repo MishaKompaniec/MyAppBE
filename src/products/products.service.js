@@ -1,6 +1,5 @@
 import { ProductItem } from './products.model.js'
-import path from 'path'
-import fs from 'fs'
+import { s3 } from '../middleware/upload.middleware.js'
 
 export async function fetchProductItems() {
   return await ProductItem.find()
@@ -16,14 +15,18 @@ export async function deleteProductItemById(customId) {
   if (!product) return null
 
   if (product.image) {
-    const imagePath = path.join(process.cwd(), product.image)
-
     try {
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath)
-      }
+
+      const url = new URL(product.image)
+      const Key = decodeURIComponent(url.pathname.substring(1))
+
+      await s3.deleteObject({
+        Bucket: 'flower-product-images',
+        Key,
+      }).promise()
+
     } catch (err) {
-      console.error('Failed to delete image file:', err)
+      console.error('Failed to delete image from S3:', err)
     }
   }
 
