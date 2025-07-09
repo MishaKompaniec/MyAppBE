@@ -37,6 +37,7 @@ router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     }
     res.json({ message: 'Product deleted' })
   } catch (err) {
+    console.error('Error deleting product:', err) // 
     res.status(500).json({ error: 'Failed to delete product item' })
   }
 })
