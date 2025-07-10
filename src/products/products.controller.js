@@ -58,4 +58,28 @@ router.post('/:id/image', authMiddleware, adminMiddleware, upload.single('image'
   }
 })
 
+router.patch('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const updated = await ProductItem.findOneAndUpdate(
+      { id: req.params.id },
+      { $set: req.body },
+      { new: true, runValidators: true }
+    )
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Product not found' })
+    }
+
+    res.json(updated)
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      const errors = Object.values(err.errors).map(e => e.message)
+      return res.status(400).json({ errors })
+    }
+
+    console.error('Error updating product:', err)
+    res.status(500).json({ error: 'Failed to update product' })
+  }
+})
+
 export default router
