@@ -13,8 +13,10 @@ const productsItemSchema = new mongoose.Schema({
       message: 'Category must be one of: bouquets, plants, fruitBouquets'
     },
   },
-  image: {
-    type: String,
+  image: { type: String },
+  isBestSellers: {
+    type: Boolean,
+    required: [true, 'Please specify whether the product belongs to Best Sellers'],
   },
 }, {
   timestamps: true,
@@ -35,5 +37,6 @@ const productsItemSchema = new mongoose.Schema({
     }
   }
 })
+
 
 export const ProductItem = mongoose.model('ProductItem', productsItemSchema)
