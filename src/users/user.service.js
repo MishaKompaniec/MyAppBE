@@ -28,3 +28,29 @@ export async function loginUser(email, password) {
 
   return { token, email: user.email, role: user.role }
 }
+
+export async function updateUser(userId, updates) {
+  const allowedFields = ['email', 'fullName', 'phoneNumber']
+  const filteredUpdates = {}
+
+  for (const key of allowedFields) {
+    if (updates[key] !== undefined) {
+      filteredUpdates[key] = updates[key]
+    }
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(userId, filteredUpdates, { new: true })
+  if (!updatedUser) throw new Error('User not found')
+
+  return {
+    email: updatedUser.email,
+    fullName: updatedUser.fullName,
+    phoneNumber: updatedUser.phoneNumber,
+    role: updatedUser.role,
+    id: updatedUser._id
+  }
+}
+
+export async function getUserById(userId) {
+  return await User.findById(userId)
+}
