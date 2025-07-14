@@ -3,6 +3,7 @@ import { fetchProductItems, createProductItem, deleteProductItemById } from './p
 import { authMiddleware, adminMiddleware } from '../middleware/auth.middleware.js'
 import { upload } from '../middleware/upload.middleware.js'
 import { ProductItem } from './products.model.js'
+import multer from 'multer'
 
 const router = express.Router()
 
@@ -42,21 +43,41 @@ router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
   }
 })
 
-router.post('/:id/image', authMiddleware, adminMiddleware, upload.single('image'), async (req, res) => {
-  try {
-    const product = await ProductItem.findOne({ id: req.params.id })
-    if (!product) return res.status(404).json({ error: 'Product not found' })
+router.post(
+  '/:id/image',
+  authMiddleware,
+  adminMiddleware,
+  (req, res, next) => {
+    upload.single('image')(req, res, err => {
+      if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({ error: 'Image size exceeds the 2MB limit' })
+        }
+        if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+          return res.status(400).json({ error: 'Only image files are allowed' })
+        }
+        return res.status(400).json({ error: err.message })
+      } else if (err) {
+        return res.status(500).json({ error: 'Unexpected upload error' })
+      }
+      next()
+    })
+  },
+  async (req, res) => {
+    try {
+      const product = await ProductItem.findOne({ id: req.params.id })
+      if (!product) return res.status(404).json({ error: 'Product not found' })
 
-    product.image = req.file.location
+      product.image = req.file.location
+      await product.save()
 
-    await product.save()
-
-    res.json({ message: 'Image uploaded', imagePath: product.image })
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: 'Failed to upload image' })
+      res.json({ message: 'Image uploaded', imagePath: product.image })
+    } catch (err) {
+      console.error(err)
+      res.status(500).json({ error: 'Failed to upload image' })
+    }
   }
-})
+)
 
 router.patch('/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
