@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
     default: '',
     maxlength: [50, 'Full Name cannot be longer than 50 characters']
   },
-  phoneNumber: { type: String, default: '' }
+  phoneNumber: { type: String, default: '' },
+  avatar: { type: String, default: '' }
 }, { timestamps: true })
 
 export const User = mongoose.model('User', userSchema)

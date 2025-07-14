@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { User } from './user.model.js'
+import { s3 } from '../middleware/upload.middleware.js';
+
 
 export async function registerUser(email, password, role = 'user') {
   const existingUser = await User.findOne({ email })
@@ -53,4 +55,24 @@ export async function updateUser(userId, updates) {
 
 export async function getUserById(userId) {
   return await User.findById(userId)
+}
+
+export async function updateUserAvatar(userId, newAvatarUrl) {
+  const user = await User.findById(userId);
+  if (!user) throw new Error('User not found');
+
+  if (user.avatar) {
+    try {
+      const url = new URL(user.avatar);
+      const Key = decodeURIComponent(url.pathname.substring(1));
+      await s3.deleteObject({ Bucket: 'flower-user-avatars', Key }).promise();
+    } catch (err) {
+      console.error('Failed to delete old avatar from S3:', err);
+    }
+  }
+
+  user.avatar = newAvatarUrl;
+  await user.save();
+
+  return user;
 }
