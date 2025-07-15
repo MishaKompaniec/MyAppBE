@@ -4,6 +4,7 @@ import { authMiddleware, } from '../middleware/auth.middleware.js'
 import { uploadAvatar } from '../middleware/upload.middleware.js'
 import { updateUserAvatar } from './user.service.js'
 import { multerErrorHandler } from '../middleware/upload.middleware.js'
+import { changeUserPassword } from './user.service.js'
 
 const router = express.Router()
 
@@ -81,6 +82,22 @@ router.get('/me/avatar', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to retrieve avatar' });
+  }
+});
+
+router.put('/me/password', authMiddleware, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current and new passwords are required' });
+    }
+
+    await changeUserPassword(req.user.userId, currentPassword, newPassword);
+
+    res.status(200).json({ message: 'Password updated successfully' });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 
