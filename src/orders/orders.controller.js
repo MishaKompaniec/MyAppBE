@@ -7,9 +7,9 @@ const router = express.Router()
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.userId
-    const { products } = req.body
+    const { products, phone, address } = req.body
 
-    const savedOrder = await createOrder(userId, products)
+    const savedOrder = await createOrder(userId, products, phone, address)
     res.status(201).json(savedOrder)
   } catch (err) {
     console.error(err)

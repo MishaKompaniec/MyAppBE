@@ -9,6 +9,10 @@ const orderSchema = new mongoose.Schema({
     title: { type: String, required: true }
   }],
   totalPrice: { type: Number, required: true },
+
+  phone: { type: String, required: true },
+  address: { type: String, required: true },
+
   status: {
     type: String,
     enum: ['pending', 'processing', 'completed', 'cancelled'],
