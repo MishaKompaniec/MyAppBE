@@ -19,6 +19,12 @@ export async function createOrder(userId, products, phone, address) {
     throw error
   }
 
+  if (address.length > 70) {
+    const error = new Error('Address must be 70 characters or fewer');
+    error.statusCode = 400;
+    throw error;
+  }
+
   const totalPrice = products.reduce((sum, p) => sum + p.price * p.quantity, 0)
 
   const order = new Order({
