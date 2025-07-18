@@ -5,7 +5,7 @@ import * as productController from './products.controller.js'
 
 const router = express.Router()
 
-router.get('/', authMiddleware, productController.getAll)
+router.get('/', productController.getAll)
 router.post('/', authMiddleware, adminMiddleware, productController.create)
 router.delete('/:id', authMiddleware, adminMiddleware, productController.remove)
 
