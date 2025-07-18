@@ -1,22 +1,16 @@
-import express from 'express'
 import { fetchProductItems, createProductItem, deleteProductItemById } from './products.service.js'
-import { authMiddleware, adminMiddleware } from '../middleware/auth.middleware.js'
-import { upload } from '../middleware/upload.middleware.js'
 import { ProductItem } from './products.model.js'
-import { multerErrorHandler } from '../middleware/upload.middleware.js'
 
-const router = express.Router()
-
-router.get('/', authMiddleware, async (req, res) => {
+export const getAll = async (req, res) => {
   try {
     const items = await fetchProductItems()
     res.json(items)
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch product items' })
   }
-})
+}
 
-router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
+export const create = async (req, res) => {
   try {
     const newItem = await createProductItem(req.body)
     res.status(201).json(newItem)
@@ -28,9 +22,9 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
 
     res.status(500).json({ error: 'Failed to create product item' })
   }
-})
+}
 
-router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+export const remove = async (req, res) => {
   try {
     const deleted = await deleteProductItemById(req.params.id)
     if (!deleted) {
@@ -38,33 +32,27 @@ router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     }
     res.json({ message: 'Product deleted' })
   } catch (err) {
-    console.error('Error deleting product:', err) // 
+    console.error('Error deleting product:', err)
     res.status(500).json({ error: 'Failed to delete product item' })
   }
-})
+}
 
-router.post(
-  '/:id/image',
-  authMiddleware,
-  adminMiddleware,
-  multerErrorHandler(upload.single('image')),
-  async (req, res) => {
-    try {
-      const product = await ProductItem.findOne({ id: req.params.id });
-      if (!product) return res.status(404).json({ error: 'Product not found' });
+export const uploadImage = async (req, res) => {
+  try {
+    const product = await ProductItem.findOne({ id: req.params.id })
+    if (!product) return res.status(404).json({ error: 'Product not found' })
 
-      product.image = req.file.location;
-      await product.save();
+    product.image = req.file.location
+    await product.save()
 
-      res.json({ message: 'Image uploaded', imagePath: product.image });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Failed to upload image' });
-    }
+    res.json({ message: 'Image uploaded', imagePath: product.image })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Failed to upload image' })
   }
-);
+}
 
-router.patch('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+export const update = async (req, res) => {
   try {
     const updated = await ProductItem.findOneAndUpdate(
       { id: req.params.id },
@@ -86,6 +74,4 @@ router.patch('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     console.error('Error updating product:', err)
     res.status(500).json({ error: 'Failed to update product' })
   }
-})
-
-export default router
+}
