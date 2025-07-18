@@ -1,67 +1,55 @@
-import express from 'express'
-import { authMiddleware, adminMiddleware } from '../middleware/auth.middleware.js'
-import { createOrder, getAllOrders, getOrdersByUser, markOrderAsCompleted, deleteOrderById } from './orders.service.js'
+import {
+  createOrder,
+  getAllOrders,
+  getOrdersByUser,
+  markOrderAsCompleted,
+  deleteOrderById
+} from './orders.service.js';
 
-const router = express.Router()
-
-router.post('/', authMiddleware, async (req, res) => {
+export const create = async (req, res) => {
   try {
-    const userId = req.user.userId
-    const { products, phone, address } = req.body
-
-    const savedOrder = await createOrder(userId, products, phone, address)
-    res.status(201).json(savedOrder)
+    const userId = req.user.userId;
+    const { products, phone, address } = req.body;
+    const savedOrder = await createOrder(userId, products, phone, address);
+    res.status(201).json(savedOrder);
   } catch (err) {
-    console.error(err)
-    const status = err.statusCode || 500
-    res.status(status).json({ error: err.message || 'Failed to create order' })
+    res.status(err.statusCode || 500).json({ error: err.message });
   }
-})
+};
 
-router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
+export const getAll = async (req, res) => {
   try {
-    const orders = await getAllOrders()
-    res.json(orders)
+    const orders = await getAllOrders();
+    res.json(orders);
   } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: 'Failed to fetch orders' })
+    res.status(500).json({ error: err.message });
   }
-})
+};
 
-router.get('/my', authMiddleware, async (req, res) => {
+export const getMine = async (req, res) => {
   try {
-    const userId = req.user.userId
-    const orders = await getOrdersByUser(userId)
-    res.json(orders)
+    const userId = req.user.userId;
+    const orders = await getOrdersByUser(userId);
+    res.json(orders);
   } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: 'Failed to fetch your orders' })
+    res.status(500).json({ error: err.message });
   }
-})
+};
 
-router.patch('/:id/complete', authMiddleware, adminMiddleware, async (req, res) => {
+export const markCompleted = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const updatedOrder = await markOrderAsCompleted(id);
+    const updatedOrder = await markOrderAsCompleted(req.params.id);
     res.json(updatedOrder);
   } catch (err) {
-    console.error(err);
-    const status = err.statusCode || 500;
-    res.status(status).json({ error: err.message || 'Failed to update order status' });
+    res.status(err.statusCode || 500).json({ error: err.message });
   }
-});
+};
 
-router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+export const remove = async (req, res) => {
   try {
-    const orderId = req.params.id;
-    await deleteOrderById(orderId);
+    await deleteOrderById(req.params.id);
     res.status(200).json({ message: 'Order deleted successfully' });
   } catch (err) {
-    console.error(err);
-    const status = err.statusCode || 500;
-    res.status(status).json({ error: err.message || 'Failed to delete order' });
+    res.status(err.statusCode || 500).json({ error: err.message });
   }
-});
-
-export default router
+};

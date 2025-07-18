@@ -2,7 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import productRoutes from './products/products.controller.js'
 import userRoutes from './users/user.controller.js'
-import orderRoutes from './orders/orders.controller.js'
+import orderRoutes from './orders/orders.routes.js';
 
 export function createApp() {
   const app = express()
