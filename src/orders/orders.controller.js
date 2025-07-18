@@ -1,6 +1,6 @@
 import express from 'express'
 import { authMiddleware, adminMiddleware } from '../middleware/auth.middleware.js'
-import { createOrder, getAllOrders, getOrdersByUser } from './orders.service.js'
+import { createOrder, getAllOrders, getOrdersByUser, markOrderAsCompleted, deleteOrderById } from './orders.service.js'
 
 const router = express.Router()
 
@@ -38,5 +38,30 @@ router.get('/my', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch your orders' })
   }
 })
+
+router.patch('/:id/complete', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const updatedOrder = await markOrderAsCompleted(id);
+    res.json(updatedOrder);
+  } catch (err) {
+    console.error(err);
+    const status = err.statusCode || 500;
+    res.status(status).json({ error: err.message || 'Failed to update order status' });
+  }
+});
+
+router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    await deleteOrderById(orderId);
+    res.status(200).json({ message: 'Order deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    const status = err.statusCode || 500;
+    res.status(status).json({ error: err.message || 'Failed to delete order' });
+  }
+});
 
 export default router

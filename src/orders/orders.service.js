@@ -32,6 +32,30 @@ export async function createOrder(userId, products, phone, address) {
   return await order.save()
 }
 
+export const markOrderAsCompleted = async (orderId) => {
+  const order = await Order.findById(orderId);
+
+  if (!order) {
+    const error = new Error('Order not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  order.status = 'completed';
+  await order.save();
+  return order;
+};
+
+export const deleteOrderById = async (orderId) => {
+  const result = await Order.findByIdAndDelete(orderId);
+  if (!result) {
+    const error = new Error('Order not found');
+    error.statusCode = 404;
+    throw error;
+  }
+  return result;
+};
+
 export async function getAllOrders() {
   return await Order.find().populate('userId', 'email name')
 }
