@@ -9,6 +9,7 @@ export function createApp() {
 
   app.use(cors({
     origin: ['http://localhost:5173', 'https://flower-shop-fe.vercel.app'],
+    credentials: true,
   }))
   app.use(express.json())
   app.use('/api/products', productRoutes)
