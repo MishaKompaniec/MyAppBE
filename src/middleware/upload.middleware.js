@@ -45,9 +45,11 @@ export function multerErrorHandler(uploadMiddleware) {
         if (err.code === 'LIMIT_UNEXPECTED_FILE') {
           return res.status(400).json({ error: 'Only image files are allowed' })
         }
+        console.error('❌ Multer error:', err)
         return res.status(400).json({ error: err.message })
       }
       if (err) {
+        console.error('❌ Unexpected upload error:', err)
         return res.status(500).json({ error: 'Unexpected upload error' })
       }
       next()
