@@ -1,4 +1,4 @@
-import { fetchProductItems, createProductItem, deleteProductItemById } from './products.service.js'
+import { createProductItem, deleteProductItemById } from './products.service.js'
 import { ProductItem } from './products.model.js'
 
 export const getAll = async (req, res) => {
