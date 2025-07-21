@@ -3,7 +3,14 @@ import { ProductItem } from './products.model.js'
 
 export const getAll = async (req, res) => {
   try {
-    const items = await fetchProductItems()
+    const { sortBy = 'title', order = 'asc' } = req.query
+    const sortOrder = order === 'desc' ? -1 : 1
+
+    const validSortFields = ['title', 'price', 'category']
+    const sortField = validSortFields.includes(sortBy) ? sortBy : 'title'
+
+    const items = await ProductItem.find().sort({ [sortField]: sortOrder })
+
     res.json(items)
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch product items' })
