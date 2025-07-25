@@ -9,8 +9,9 @@ import {
 export const create = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const { products, phone, address } = req.body;
-    const savedOrder = await createOrder(userId, products, phone, address);
+    const { products, phone, address, fullName } = req.body;
+    const savedOrder = await createOrder(userId, products, phone, address, fullName);
+
     res.status(201).json(savedOrder);
   } catch (err) {
     res.status(err.statusCode || 500).json({ error: err.message });

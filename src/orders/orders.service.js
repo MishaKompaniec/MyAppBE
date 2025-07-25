@@ -1,22 +1,34 @@
 import { Order } from './orders.model.js'
 
-export async function createOrder(userId, products, phone, address) {
+export async function createOrder(userId, products, phone, address, fullName) {
   if (!Array.isArray(products) || products.length === 0) {
-    const error = new Error('Products list cannot be empty')
-    error.statusCode = 400
-    throw error
+    const error = new Error('Products list cannot be empty');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (!fullName || typeof fullName !== 'string' || fullName.trim() === '') {
+    const error = new Error('Full name is required');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (fullName.length > 50) {
+    const error = new Error('Full name must be 50 characters or fewer');
+    error.statusCode = 400;
+    throw error;
   }
 
   if (!phone || typeof phone !== 'string' || phone.trim() === '') {
-    const error = new Error('Phone is required')
-    error.statusCode = 400
-    throw error
+    const error = new Error('Phone is required');
+    error.statusCode = 400;
+    throw error;
   }
 
   if (!address || typeof address !== 'string' || address.trim() === '') {
-    const error = new Error('Address is required')
-    error.statusCode = 400
-    throw error
+    const error = new Error('Address is required');
+    error.statusCode = 400;
+    throw error;
   }
 
   if (address.length > 70) {
@@ -25,17 +37,18 @@ export async function createOrder(userId, products, phone, address) {
     throw error;
   }
 
-  const totalPrice = products.reduce((sum, p) => sum + p.price * p.quantity, 0)
+  const totalPrice = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
 
   const order = new Order({
     userId,
+    fullName,
     products,
     totalPrice,
     phone,
     address
-  })
+  });
 
-  return await order.save()
+  return await order.save();
 }
 
 export const markOrderAsCompleted = async (orderId) => {
